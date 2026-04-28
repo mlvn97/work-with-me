@@ -10,6 +10,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: workwithme_test
+        ports:
+          - 5432:5432
+
     steps:
       - name: Code checkout
         uses: actions/checkout@v4
@@ -24,3 +34,7 @@ jobs:
       - name: Build avec Maven
         run: mvn -B clean install
         working-directory: ./workwithme-api
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/workwithme_test
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
