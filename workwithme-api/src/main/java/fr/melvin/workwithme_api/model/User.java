@@ -7,8 +7,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import fr.melvin.workwithme_api.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -49,7 +52,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-class User implements UserDetails {
+public class User implements UserDetails {
 
     /** The user id. */
     @Id
@@ -58,8 +61,9 @@ class User implements UserDetails {
 
     /** The user role, either USER or COMPANY. Can not be null. */
     @NotNull
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role;
+    private Role role;
 
     /** The user name. Can not be null. */
     @NotBlank
@@ -78,15 +82,19 @@ class User implements UserDetails {
     private String email;
 
     /** The user description. */
+    @Column(nullable = true)
     private String description;
 
     /** The user profession, only for workers. */
+    @Column(nullable = true)
     private String profession;
 
     /** The company id associated to the user, only for workers. */
+    @Column(nullable = true)
     private long companyId;
 
     /** The user working domain, only for companies. */
+    @Column(nullable = true)
     private String domain;
 
     /**
