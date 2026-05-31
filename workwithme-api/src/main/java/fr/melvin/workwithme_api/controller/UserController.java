@@ -63,7 +63,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("User with this email already exists.");
         }
 
-        // Initializes an User instance
+        // Initializes a User instance
         User user = new User();
         user.setName(userRequest.getName());
         user.setEmail(userRequest.getEmail());
