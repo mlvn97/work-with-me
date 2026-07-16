@@ -38,3 +38,11 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/workwithme_test
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: postgres
+
+      - name: Run tests
+        run: mvn test
+        working-directory: ./workwithme-api
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/workwithme_test
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: postgres
