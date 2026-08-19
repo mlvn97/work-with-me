@@ -37,12 +37,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @param user the user to delete
      */
     public void delete(User user);
-
-    /**
-     * Updates a user in the database.
-     *
-     * @param user the user to update
-     * @return the updated user
-     */
-    public <S extends User> S update(S user);
 }
