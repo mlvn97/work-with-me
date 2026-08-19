@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import fr.melvin.workwithme_api.model.User;
-import fr.melvin.workwithme_api.repository.UserRepo;
+import fr.melvin.workwithme_api.repository.UserRepository;
 import lombok.AllArgsConstructor;
 
 /**
@@ -17,32 +17,29 @@ import lombok.AllArgsConstructor;
  * Implements the {@link UserDetailsService} interface to provide user details for Spring Security authentication.
  * </p>
  * 
- * @see UserRepo
+ * @see UserRepository
  */
 @AllArgsConstructor
 @Service
 public class UserService implements UserDetailsService {
     
-    private final UserRepo userRepo;
+    private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'loadUserByUsername'");
+    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
+        return userRepository.findByName(name);
     }
 
     public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
-        // TODO
-        throw new UnsupportedOperationException("Unimplemented method 'loadUserByEmail'");
+        return userRepository.findByEmail(email);
     }
 
     public void registerUser(User user) {
-        // TODO
+        userRepository.save(user);
     }
 
     public boolean userExists(String email) {
-        // TODO
-        return false;
+        return userRepository.findByEmail(email) != null;
     }
     
 }
