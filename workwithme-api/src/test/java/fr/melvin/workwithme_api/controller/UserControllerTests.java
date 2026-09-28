@@ -108,5 +108,7 @@ public class UserControllerTests {
                 ))
                 .andExpect(status().isOk());
     }
+
+    // TODO: Get user by ID
     
 }

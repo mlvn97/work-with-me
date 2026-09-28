@@ -10,7 +10,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     /**
      * Finds a user by their email address.
-     *
      * @param email the email address of the user to find
      * @return the user with the specified username, or null if no such user exists
      */
@@ -25,7 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
      * Saves a user to the database.
-     *
      * @param user the user to save
      * @return the saved user
      */
@@ -33,8 +31,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     /**
      * Deletes a user from the database.
-     *
      * @param user the user to delete
      */
     public void delete(User user);
+
+    /**
+     * Finds a user by their unique identifier.
+     * @param id the unique identifier of the user to find
+     * @return the user with the specified id, or null if no such user exists
+     */
+    public User findById(long id);
 }

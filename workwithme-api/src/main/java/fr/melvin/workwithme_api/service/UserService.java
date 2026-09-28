@@ -41,5 +41,9 @@ public class UserService implements UserDetailsService {
     public boolean userExists(String email) {
         return userRepository.findByEmail(email) != null;
     }
+
+    public User getUserById(long id) {
+        return userRepository.findById(id);
+    }
     
 }
