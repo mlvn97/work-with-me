@@ -10,6 +10,7 @@ jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    environment: ${{ vars.ENV_NAME }}
     permissions:
       contents: read
       packages: read
@@ -37,11 +38,13 @@ jobs:
           GHCR_USERNAME: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+          POSTGRES_DB: ${{ vars.POSTGRES_DB }}
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_NAME }}
           key: ${{ secrets.VM_SSH_KEY }}
-          envs: IMAGE_NAME,GHCR_USERNAME,GHCR_TOKEN,POSTGRES_PASSWORD
+          envs: IMAGE_NAME,GHCR_USERNAME,GHCR_TOKEN,POSTGRES_PASSWORD,POSTGRES_USER,POSTGRES_DB
           script: |
             set -eu
             : "${POSTGRES_PASSWORD:?Add POSTGRES_PASSWORD to GitHub Actions secrets}"
@@ -49,8 +52,8 @@ jobs:
             printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GHCR_USERNAME" --password-stdin
             trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
             export DOCKER_IMAGE="$IMAGE_NAME"
-            export POSTGRES_DB=workwithme
-            export POSTGRES_USER=postgres
+            export POSTGRES_DB="$POSTGRES_DB"
+            export POSTGRES_USER="$POSTGRES_USER"
             export POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
             docker compose pull api
             docker compose up -d --no-build
