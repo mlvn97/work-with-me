@@ -1,0 +1,56 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: ["ci"]
+    types: [completed]
+    branches: [main]
+
+jobs: 
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout deployed revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Copy Compose file to Azure VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_NAME }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: docker-compose.yml
+          target: /home/${{ secrets.VM_NAME }}/work-with-me
+          overwrite: true
+
+      - name: Pull image and restart application
+        uses: appleboy/ssh-action@v1.2.2
+        env:
+          IMAGE_NAME: ghcr.io/${{ github.repository }}:sha-${{ github.event.workflow_run.head_sha }}
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_NAME }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          envs: IMAGE_NAME,GHCR_USERNAME,GHCR_TOKEN,POSTGRES_PASSWORD
+          script: |
+            set -eu
+            : "${POSTGRES_PASSWORD:?Add POSTGRES_PASSWORD to GitHub Actions secrets}"
+            cd "$HOME/work-with-me"
+            printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GHCR_USERNAME" --password-stdin
+            trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+            export DOCKER_IMAGE="$IMAGE_NAME"
+            export POSTGRES_DB=workwithme
+            export POSTGRES_USER=postgres
+            export POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
+            docker compose pull api
+            docker compose up -d --no-build
