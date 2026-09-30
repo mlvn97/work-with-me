@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     services:
       postgres:
@@ -25,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '21'
@@ -35,14 +38,34 @@ jobs:
         run: mvn -B clean install
         working-directory: ./workwithme-api
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/workwithme_test
-          SPRING_DATASOURCE_USERNAME: postgres
-          SPRING_DATASOURCE_PASSWORD: postgres
+          DATABASE_URL: jdbc:postgresql://localhost:5432/workwithme_test
+          DATABASE_USERNAME: postgres
+          DATABASE_PASSWORD: postgres
 
       - name: Run tests
         run: mvn test
         working-directory: ./workwithme-api
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/workwithme_test
-          SPRING_DATASOURCE_USERNAME: postgres
-          SPRING_DATASOURCE_PASSWORD: postgres
+          DATABASE_URL: jdbc:postgresql://localhost:5432/workwithme_test
+          DATABASE_USERNAME: postgres
+          DATABASE_PASSWORD: postgres
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./workwithme-api
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:sha-${{ github.sha }}

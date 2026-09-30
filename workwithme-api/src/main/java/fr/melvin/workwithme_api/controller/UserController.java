@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import fr.melvin.workwithme_api.dto.request.UserLoadRequest;
 import fr.melvin.workwithme_api.dto.request.UserRegisterRequest;
+import fr.melvin.workwithme_api.dto.response.UserInfoResponse;
 import fr.melvin.workwithme_api.enums.Role;
 import fr.melvin.workwithme_api.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +14,6 @@ import lombok.AllArgsConstructor;
 
 import java.net.URI;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * <ul>
  *   <li>Register an user in the database.</li>
  *   <li>Load an user from the database.</li>
+ *   <li>Get an user by its id.</li>
  * </ul>
  * </p>
  * 
@@ -104,4 +106,19 @@ public class UserController {
         }
     }
     
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserInfoResponse> getUser(@RequestParam long id) {
+        User user = userService.getUserById(id);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        UserInfoResponse userInfoResponse = new UserInfoResponse();
+        userInfoResponse.setName(user.getName());
+        userInfoResponse.setRole(user.getRole());
+        userInfoResponse.setProfession(user.getProfession());
+        userInfoResponse.setDomain(user.getDomain());
+        userInfoResponse.setCompanyId(user.getCompanyId());
+        return ResponseEntity.ok(userInfoResponse);
+    }
 }
