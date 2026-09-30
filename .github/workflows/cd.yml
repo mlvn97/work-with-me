@@ -1,4 +1,4 @@
-name: CD
+name: cd
 
 on:
   workflow_run:
@@ -10,7 +10,7 @@ jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    environment: ${{ vars.ENV_NAME }}
+    environment: work-with-me
     permissions:
       contents: read
       packages: read
