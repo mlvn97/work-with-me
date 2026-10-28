@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in the root .env file}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in the root .env file}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env file}
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
@@ -16,25 +16,25 @@ services:
       retries: 10
 
   api:
-    image: ${DOCKER_IMAGE:-workwithme-api:local}
+    image: ${API_IMAGE:-workwithme-api:local}
     build:
       context: ./workwithme-api
     ports:
       - "8080:8080"
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:?Set POSTGRES_DB in the root .env file}
+      DATABASE_USERNAME: ${POSTGRES_USER:?Set POSTGRES_USER in the root .env file}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env file}
     depends_on:
       postgres:
         condition: service_healthy
 
   web:
-    image: ${DOCKER_IMAGE:-workwithme-web:local}
+    image: ${WEB_IMAGE:-workwithme-web:local}
     build:
       context: ./workwithme-web
     ports:
-      - "3000:3000"
+      - "3000:80"
 
 volumes:
   postgres_data:
