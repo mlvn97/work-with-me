@@ -56,7 +56,7 @@ public class UserControllerTests {
     @Test
     void registerUserReturnsCreated() throws Exception {
         when(userService.userExists("user1@test.com")).thenReturn(false);
-        mockMvc.perform(post("/auth/register?role=USER")
+        mockMvc.perform(post("/api/auth/register?role=USER")
                 .with(csrf())
                 .with(user(user))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -75,7 +75,7 @@ public class UserControllerTests {
     @Test
     void registerUserReturnsConflict() throws Exception {
         when(userService.userExists("user1@test.com")).thenReturn(true);
-        mockMvc.perform(post("/auth/register?role=USER")
+        mockMvc.perform(post("/api/auth/register?role=USER")
                 .with(csrf())
                 .with(user(user))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -94,7 +94,7 @@ public class UserControllerTests {
     @Test
     void loadUserReturnsOk() throws Exception {
         // when(userService.loadUserByEmail("user1@test.com")).thenReturn(user);
-        mockMvc.perform(post("/auth/login")
+        mockMvc.perform(post("/api/auth/login")
                 .with(csrf())
                 .with(user(user))
                 .contentType(MediaType.APPLICATION_JSON)
