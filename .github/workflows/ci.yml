@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
 
     services:
       postgres:
@@ -50,31 +49,15 @@ jobs:
           DATABASE_USERNAME: postgres
           DATABASE_PASSWORD: postgres
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GitHub Container Registry
-        if: github.event_name == 'push'
-        uses: docker/login-action@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          node-version: 22
+          cache: npm
+          cache-dependency-path: workwithme-web/package-lock.json
 
-      - name: Build and push API image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./workwithme-api
-          push: ${{ github.event_name == 'push' }}
-          tags: |
-            ghcr.io/${{ github.repository }}-api:latest
-            ghcr.io/${{ github.repository }}-api:sha-${{ github.sha }}
-
-      - name: Build and push web image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./workwithme-web
-          push: ${{ github.event_name == 'push' }}
-          tags: |
-            ghcr.io/${{ github.repository }}-web:latest
-            ghcr.io/${{ github.repository }}-web:sha-${{ github.sha }}
+      - name: Build frontend
+        run: |
+          npm ci
+          npm run build
+        working-directory: ./workwithme-web
